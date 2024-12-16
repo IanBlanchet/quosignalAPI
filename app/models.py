@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String , Boolean, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, BigInteger, String , Boolean, Float, Date, ForeignKey, Time
 from sqlalchemy.orm import relationship
 from app.database import Base, engine
 from datetime import date
@@ -11,6 +11,9 @@ class Abonne(Base):
     prenom = Column(String(100), index = True)
     date_naissance = Column(Date, index = True)
     telephone = Column(BigInteger)
+    adresse = Column(String(100))
+    ville = Column(String(75))
+    heure = Column(Time)
 
 
 
