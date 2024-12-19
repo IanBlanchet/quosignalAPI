@@ -14,3 +14,9 @@ router = APIRouter()
 def read_abonne(db: Session = Depends(session_scope)):
     abonnes = abonneCrud.get_abonne(db)
     return abonnes
+
+
+@router.post("/abonne/")
+async def create_abonne(abonne: schemas.BaseAbonne, db: Session = Depends(session_scope)):
+    
+    return abonneCrud.create_abonne(db, abonne)

@@ -2,8 +2,7 @@ from typing import List, Union, Optional
 from datetime import date, time
 from pydantic import BaseModel
 
-class Abonne(BaseModel):
-    id : int
+class BaseAbonne(BaseModel):
     nom : str
     prenom : str
     date_naissance : date
@@ -14,3 +13,6 @@ class Abonne(BaseModel):
 
     class Config:
         from_attributes = True
+
+class Abonne(BaseAbonne):
+    id: int
