@@ -12,8 +12,11 @@ def create_abonne(db : Session, abonne :schemas.BaseAbonne):
         telephone = abonne.telephone,        
         adresse = abonne.adresse,
         ville = abonne.ville,
-        heure = abonne.heure
+        heure = abonne.heure,        
+        langue = abonne.langue
+
     )
 
     db.add(new_abonne)
     return new_abonne
+

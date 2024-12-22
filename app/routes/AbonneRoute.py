@@ -20,3 +20,6 @@ def read_abonne(db: Session = Depends(session_scope)):
 async def create_abonne(abonne: schemas.BaseAbonne, db: Session = Depends(session_scope)):
     
     return abonneCrud.create_abonne(db, abonne)
+
+
+
