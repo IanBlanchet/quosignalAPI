@@ -28,12 +28,12 @@ class RouteFactory:
     def create_route_post_new(self, fieldUniqueValidation : List[str]):
         @self.router.post(f"/{self.routename}/" ) 
         def create_new(item : self.baseSchema, db: Session = Depends(session_scope)):
+            item_dict = item.dict()
             for field in fieldUniqueValidation:
-                existItem = db.query(self.model).where(self.model[field] == item[field]).first()
+                existItem = db.query(self.model).where(getattr(self.model, field) == item_dict[field]).first()
                 if existItem:
                     raise HTTPException(status_code=400, detail=f"{field} existe déjà")
 
-            item_dict = item.dict()
             new_item = self.model(**item_dict)
             db.add(new_item)
             return new_item

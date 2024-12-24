@@ -21,7 +21,7 @@ def read_abonne(db: Session = Depends(session_scope)):
     abonnes = abonneCrud.get_abonne(db)
     return abonnes"""
 
-newAbonneRouter = abonneRoute.create_route_post_new(['heure'])
+newAbonneRouter = abonneRoute.create_route_post_new(['heure', 'telephone'])
 """@router.post("/abonne/")
 async def create_abonne(abonne: schemas.BaseAbonne, db: Session = Depends(session_scope)):
     
