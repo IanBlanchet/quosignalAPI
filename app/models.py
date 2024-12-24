@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String , Boolean, Float, Date, ForeignKey, Time
+from sqlalchemy import Column, Integer, BigInteger, String , Boolean, Float, Date, ForeignKey, Time, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.database import Base, engine
 from datetime import date
@@ -41,6 +41,9 @@ class Appel(Base):
     commentaire = Column(String(300))
     usager = Column(Integer, ForeignKey('usager.id'))
     abonne = Column(Integer,  ForeignKey('abonne.id'))
+    __table_args__ = (
+        UniqueConstraint('date', 'abonne', name='uq_date_abonne'),
+    )
 
 class Centre(Base):
     __tablename__='centre'

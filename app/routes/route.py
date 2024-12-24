@@ -20,4 +20,4 @@ newUsagerRouter = usagerRoute.create_route_post_new(['email'])
 
 appelRoute = RouteFactory('appel', schemas.Appel, schemas.BaseAppel, models.Appel)
 allAppelRouter = appelRoute.create_route_get_all()
-newAppelRouter = appelRoute.create_route_post_new([])
+newAppelRouter = appelRoute.create_route_post_new([['date', 'abonne']])

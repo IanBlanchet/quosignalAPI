@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import _and
 from app import models, schemas
 from typing import List
 
@@ -33,9 +34,15 @@ class RouteFactory:
         def create_new(item : self.baseSchema, db: Session = Depends(session_scope)):
             item_dict = item.dict()
             for field in fieldUniqueValidation:
-                existItem = db.query(self.model).where(getattr(self.model, field) == item_dict[field]).first()
-                if existItem:
-                    raise HTTPException(status_code=400, detail=f"{field} existe déjà")
+                if type(field) == list:
+                    existItem = db.query(self.model).where(
+                        and_(getattr(self.model, field[0]) == item_dict[field[0]] & getattr(self.model, field[1]) == item_dict[field[1]])).first()
+                    if existItem:
+                        raise HTTPException(status_code=400, detail=f"La combinaison {field[0]} et {field[1]} existe déjà")
+                else:
+                    existItem = db.query(self.model).where(getattr(self.model, field) == item_dict[field]).first()
+                    if existItem:
+                        raise HTTPException(status_code=400, detail=f"{field} existe déjà")
 
             new_item = self.model(**item_dict)
             db.add(new_item)
