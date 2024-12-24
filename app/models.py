@@ -17,6 +17,8 @@ class Abonne(Base):
     actif = Column(Boolean, default = True)
     langue = Column(String(30))
     date_insc = Column(Date, default = date.today)
+    centre = Column(Integer, ForeignKey('centre.id'))
+    appel = relationship('Appel', backref='abonne_appel', lazy='dynamic')
 
 class Usager(Base):
     __tablename__='usager'
@@ -26,8 +28,8 @@ class Usager(Base):
     email = Column(String(60), unique = True)
     password_hash = Column(String(128))
     niveau = Column(String(20), default='attente')
-	#centre = db.Column(db.Integer, db.ForeignKey('centres.id'))
-	#appel = db.relationship('StatAbon', backref='le_benevole', lazy='dynamic')
+    centre = Column(Integer, ForeignKey('centre.id'))
+    appel = relationship('Appel', backref='usager_appel', lazy='dynamic')
 
 
 class Appel(Base):
@@ -37,8 +39,8 @@ class Appel(Base):
     resultat = Column(String(25))
     alerte = Column(String(15))
     commentaire = Column(String(300))
-    #benevole = db.Column(db.Integer, db.ForeignKey('benevole.id'))
-	#abonne = db.Column(db.Integer,  db.ForeignKey('liste.id'))
+    usager = Column(Integer, ForeignKey('usager.id'))
+    abonne = Column(Integer,  ForeignKey('abonne.id'))
 
 class Centre(Base):
     __tablename__='centre'
@@ -47,8 +49,8 @@ class Centre(Base):
     adresse = Column(String(100))
     ville = Column(String(100))
     telephone = Column(BigInteger, unique= True)
-	#benevole = db.relationship('Benevole', backref='centres', lazy='dynamic')
-	#abonne = db.relationship('Liste', backref='centres', lazy='dynamic')
+    usager = relationship('Usager', backref='centre_usager', lazy='dynamic')
+    abonne = relationship('Abonne', backref='centre_abonne', lazy='dynamic')
 
 #Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
