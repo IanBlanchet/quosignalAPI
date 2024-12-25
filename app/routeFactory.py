@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import _and
+from sqlalchemy import and_
 from app import models, schemas
 from typing import List
 
@@ -27,16 +27,28 @@ class RouteFactory:
             items = db.query(self.model).all() 
             return items
         return self.router
+    
+    def create_route_get_item(self) -> APIRouter:
+        @self.router.get(f"/{self.routename}/"+"{item_id}", response_model=self.schema)
+        def read_item(item_id: int, db: Session = Depends(session_scope)):
+            item = db.query(self.model).where(getattr(self.model, 'id') == item_id).first()
+            return item
+        return self.router
 
     def create_route_post_new(self, fieldUniqueValidation : List[str]) -> APIRouter:
-        "retourne une route pour creer une nouvelle entrée"
+        """
+        permet de creer une route pour creer une nouvelle entrée
+
+        Args: 
+            fieldUniqueValidation (List): les noms du champs qui doivent être unique.  
+                                        Si le champs est une liste, on veut valider une combinaison.
+        """
         @self.router.post(f"/{self.routename}/" ) 
         def create_new(item : self.baseSchema, db: Session = Depends(session_scope)):
             item_dict = item.dict()
             for field in fieldUniqueValidation:
                 if type(field) == list:
-                    existItem = db.query(self.model).where(
-                        and_(getattr(self.model, field[0]) == item_dict[field[0]] & getattr(self.model, field[1]) == item_dict[field[1]])).first()
+                    existItem = db.query(self.model).where(and_(getattr(self.model, field[0]) == item_dict[field[0]] , getattr(self.model, field[1]) == item_dict[field[1]])).first()
                     if existItem:
                         raise HTTPException(status_code=400, detail=f"La combinaison {field[0]} et {field[1]} existe déjà")
                 else:

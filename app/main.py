@@ -6,6 +6,7 @@ app = FastAPI()
 
 app.include_router(route.allAbonneRouter)
 app.include_router(route.newAbonneRouter)
+app.include_router(route.abonneRouter)
 app.include_router(route.allCentreRouter)
 app.include_router(route.allUsagerRouter)
 app.include_router(route.newUsagerRouter)
