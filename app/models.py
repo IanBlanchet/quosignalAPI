@@ -17,8 +17,9 @@ class Abonne(Base):
     actif = Column(Boolean, default = True)
     langue = Column(String(30))
     date_insc = Column(Date, default = date.today)
-    centre = Column(Integer, ForeignKey('centre.id'))
-    appel = relationship('Appel', backref='abonne_appel', lazy='dynamic')
+    centre_id = Column(Integer, ForeignKey('centre.id'))
+    appels = relationship('Appel', lazy='joined', back_populates="abonne")
+    centre = relationship('Centre', back_populates="abonnes")
 
 class Usager(Base):
     __tablename__='usager'
@@ -28,8 +29,9 @@ class Usager(Base):
     email = Column(String(60), unique = True)
     password_hash = Column(String(128))
     niveau = Column(String(20), default='attente')
-    centre = Column(Integer, ForeignKey('centre.id'))
-    appel = relationship('Appel', backref='usager_appel', lazy='dynamic')
+    centre_id = Column(Integer, ForeignKey('centre.id'))
+    appels = relationship('Appel', back_populates="usager", lazy='joined')
+    centre = relationship('Centre', back_populates="usagers")
 
 
 class Appel(Base):
@@ -39,10 +41,12 @@ class Appel(Base):
     resultat = Column(String(25))
     alerte = Column(String(15))
     commentaire = Column(String(300))
-    usager = Column(Integer, ForeignKey('usager.id'))
-    abonne = Column(Integer,  ForeignKey('abonne.id'))
+    usager_id = Column(Integer, ForeignKey('usager.id'))
+    abonne_id = Column(Integer,  ForeignKey('abonne.id'))
+    abonne = relationship('Abonne', back_populates='appels') 
+    usager = relationship('Usager', back_populates='appels')
     __table_args__ = (
-        UniqueConstraint('date', 'abonne', name='uq_date_abonne'),
+        UniqueConstraint('date', 'abonne_id', name='uq_date_abonne'),
     )
 
 class Centre(Base):
@@ -52,8 +56,8 @@ class Centre(Base):
     adresse = Column(String(100))
     ville = Column(String(100))
     telephone = Column(BigInteger, unique= True)
-    usager = relationship('Usager', backref='centre_usager', lazy='dynamic')
-    abonne = relationship('Abonne', backref='centre_abonne', lazy='dynamic')
+    usagers = relationship('Usager', back_populates='centre', lazy='joined')
+    abonnes = relationship('Abonne', back_populates='centre', lazy='joined')
 
 #Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)

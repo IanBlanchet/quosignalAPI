@@ -12,16 +12,12 @@ class BaseAbonne(BaseModel):
     ville : str
     heure : time     
     langue : Optional[str]  
-    centre : int
+    centre_id : int
 
     model_config = {
         "from_attributes":True
         }     
 
-class Abonne(BaseAbonne):
-    id: int
-    date_insc : date
-    actif : bool
 
 
 class niveauEnum(str, Enum):
@@ -37,7 +33,7 @@ class BaseUsager(BaseModel):
     email : EmailStr
     password_hash : Optional[str]
     niveau : niveauEnum
-    centre : int
+    centre_id : int
 
     model_config = {
         "from_attributes":True
@@ -51,8 +47,8 @@ class BaseAppel(BaseModel):
     resultat : str
     alerte : str
     commentaire: str
-    usager : int
-    abonne : int
+    usager_id : int
+    abonne_id : int
 
     model_config = {
         "from_attributes":True
@@ -61,12 +57,24 @@ class BaseAppel(BaseModel):
 class Appel(BaseAppel):    
     id : int
 
+class Abonne(BaseAbonne):
+    id: int
+    date_insc : date
+    actif : bool
+    appels: List[Appel] = []
+
+class Usager(BaseUsager):
+    id : int
+    appels: List[Appel] = []
+
 class Centre(BaseModel):
     id : int
     nom : str
     adresse : str
     ville : str
     telephone : int
+    usagers: List[Usager] = []
+    abonnes: List[Abonne] = []
 
     model_config = {
         "from_attributes":True

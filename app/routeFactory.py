@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
 from app import models, schemas
 from typing import List
@@ -13,16 +13,17 @@ router = APIRouter()
 
 class RouteFactory:
     """ permet de créer un objet pour générer des routes"""
-    def __init__(self, routename : str, schema : schemas, baseSchema : schemas, model : models) -> object:
+    def __init__(self, routename : str, schema : schemas, baseSchema : schemas, model : models, relations : list = []) -> object:
         self.routename = routename
         self.schema = schema
         self.baseSchema = baseSchema
         self.model = model
+        self.relations = relations
         self.router = router
 
     def create_route_get_all(self) -> APIRouter: 
         "retourne un router pour obtenir toutes les données"
-        @self.router.get(f"/{self.routename}/", response_model=List[self.schema], tags=[self.routename]) 
+        @self.router.get(f"/{self.routename}/", response_model=List[self.baseSchema], tags=[self.routename]) 
         def read_all(db: Session = Depends(session_scope)):
             items = db.query(self.model).all() 
             return items
@@ -31,7 +32,13 @@ class RouteFactory:
     def create_route_get_item(self) -> APIRouter:
         @self.router.get(f"/{self.routename}/"+"{item_id}", response_model=self.schema)
         def read_item(item_id: int, db: Session = Depends(session_scope)):
-            item = db.query(self.model).where(getattr(self.model, 'id') == item_id).first()
+            query = db.query(self.model)#.where(getattr(self.model, 'id') == item_id).first()
+            for relation in self.relations: 
+                query = query.options(joinedload(getattr(self.model, relation)))
+            item = query.where(getattr(self.model, 'id') == item_id).first()
+            if not item:
+                raise HTTPException(status_code=400, detail=f"Cet {self.routename} n'existe pas ")
+
             return item
         return self.router
 
