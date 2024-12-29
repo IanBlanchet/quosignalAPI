@@ -1,4 +1,4 @@
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Dict, Any
 from datetime import date, time
 from pydantic import BaseModel, EmailStr
 from enum import Enum
@@ -8,10 +8,13 @@ class BaseAbonne(BaseModel):
     prenom : str
     date_naissance : date
     telephone : int
+    telephone2 : Union[int, None] = None
     adresse : str
     ville : str
     heure : time     
-    langue : Optional[str]  
+    langue : Optional[str] 
+    noCle : Union[int, None] = None 
+    infoSupp : Union[Dict, None] = {} #Any = {}
     centre_id : int
 
     model_config = {
@@ -57,16 +60,36 @@ class BaseAppel(BaseModel):
 class Appel(BaseAppel):    
     id : int
 
+class BaseContactUrgence(BaseModel):    
+    nomComplet : str
+    telephone : int
+    telephone2 : Union[int, None] = None
+    cleDispo : bool = False
+    lien : str
+    model_config = {
+        "from_attributes":True
+        } 
+
+
 class Abonne(BaseAbonne):
     id: int
     date_insc : date
     actif : bool
     appels: List[Appel] = []
+    contactUrgences : List[BaseContactUrgence] = []
 
 class Usager(BaseUsager):
     id : int
     appels: List[Appel] = []
+    
+class ContactUrgence(BaseContactUrgence):
+    id : int 
+    abonnes : List[Abonne] = []
 
+class Ass_abonne_contactUrgence(BaseModel):
+    abonne : List[Abonne] = []
+    contactUrgence : List[BaseContactUrgence] = []
+    
 class Centre(BaseModel):
     id : int
     nom : str
