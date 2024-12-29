@@ -5,8 +5,7 @@ def get_usager(db : Session):
     return db.query(models.Usager).all()
 
 def create_usager(db : Session, usager :schemas.BaseUsager):
-    existUsager = db.query(models.Usager).where(models.Usager.email == usager.email).first()
-    print(existUsager)
+    existUsager = db.query(models.Usager).where(models.Usager.email == usager.email).first()    
     if existUsager:
         return None
     
