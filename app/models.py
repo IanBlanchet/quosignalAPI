@@ -24,7 +24,7 @@ class Abonne(Base):
     appels = relationship('Appel', back_populates="abonne", lazy='joined')
     centre = relationship('Centre', back_populates="abonnes")
     contactUrgences = relationship('ContactUrgence', back_populates="abonnes", secondary='ass_abonne_contactUrgence')
-    associations = relationship('Ass_abonne_contactUrgence', back_populates='abonne')
+    associations = relationship('Ass_abonne_contactUrgence', back_populates='abonne', overlaps="contactUrgences,abonnes")
 
 class Usager(Base):
     __tablename__='usager'
@@ -61,17 +61,19 @@ class ContactUrgence(Base):
     telephone = Column(BigInteger)
     telephone2 = Column(BigInteger, default=None)
     cleDispo = Column(Boolean)
-    lien = Column(String(50))
+    #lien = Column(String(50))
     abonnes = relationship('Abonne', back_populates="contactUrgences",secondary='ass_abonne_contactUrgence')
-    associations = relationship('Ass_abonne_contactUrgence', back_populates='contactUrgence')
+    associations = relationship('Ass_abonne_contactUrgence', back_populates='contactUrgence', overlaps="contactUrgences,abonnes")
 
 class Ass_abonne_contactUrgence(Base):
     __tablename__ = 'ass_abonne_contactUrgence'    
     abonne_id = Column(Integer, ForeignKey('abonne.id'), primary_key=True)
     contactUrgence_id = Column(Integer, ForeignKey('contactUrgence.id'), primary_key=True)
-    abonne = relationship('Abonne', back_populates='associations')
-    contactUrgence = relationship('ContactUrgence', back_populates='associations')
+    lien = Column(String(30))
+    abonne = relationship('Abonne', back_populates='associations', overlaps="contactUrgences,abonnes")
+    contactUrgence = relationship('ContactUrgence', back_populates='associations', overlaps="contactUrgences,abonnes")
     __table_args__ = ( UniqueConstraint('abonne_id', 'contactUrgence_id', name='uq_abonne_contactUrgence'), )
+
 
 class Centre(Base):
     __tablename__='centre'

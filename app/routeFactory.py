@@ -12,7 +12,15 @@ from app.database import session_scope
 router = APIRouter()
 
 class RouteFactory:
-    """ permet de créer un objet pour générer des routes"""
+    """
+        permet de créer un objet pour générer des routes
+        Args : 
+            routename (str) : le nom de la route (url)
+            schema (schemas) : le schema pydantic complet
+            baseSchema (schema) : le schema pydantic de base
+            model (models) : le model de l'orm sql_alchemy
+            relations (List) : la liste des relations qui doivent être jointent dans l'appel sur l'orm        
+    """
     def __init__(self, routename : str, schema : schemas, baseSchema : schemas, model : models, relations : list = []) -> object:
         self.routename = routename
         self.schema = schema
@@ -30,6 +38,14 @@ class RouteFactory:
         return self.router
     
     def create_route_get_item(self) -> APIRouter:
+        """une route pour récupérer un item
+
+        Raises:
+            HTTPException: lorsque l'item n'existe pas
+
+        Returns:
+            APIRouter: une route pour obtenir un item spécifique basé sur l'url
+        """
         @self.router.get(f"/{self.routename}/"+"{item_id}", response_model=self.schema)
         def read_item(item_id: int, db: Session = Depends(session_scope)):
             query = db.query(self.model)#.where(getattr(self.model, 'id') == item_id).first()
