@@ -45,9 +45,15 @@ class BaseUsager(BaseModel):
 class Usager(BaseUsager):
     id : int
 
+class appelEnum(str, Enum):
+    complet = 'complété'
+    absence = 'absence motivée'
+    sauvetage = 'sauvetage'
+
+
 class BaseAppel(BaseModel):    
     date : date
-    resultat : str
+    resultat : appelEnum
     alerte : str
     commentaire: str
     usager_id : int
