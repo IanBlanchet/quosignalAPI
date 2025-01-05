@@ -16,6 +16,7 @@ class BaseAbonne(BaseModel):
     langue : Optional[str] 
     noCle : Union[int, None] = None 
     infoSupp : Union[Dict, None] = {} #Any = {}
+    jours : Dict
     centre_id : int
 
     model_config = {

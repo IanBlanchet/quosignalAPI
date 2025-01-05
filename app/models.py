@@ -20,6 +20,7 @@ class Abonne(Base):
     date_insc = Column(Date, default = date.today)
     noCle = Column(Integer, default=None)
     infoSupp = Column(JSONB, default={})
+    jours = Column(JSONB, default={'jours':['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi']})
     centre_id = Column(Integer, ForeignKey('centre.id'))
     appels = relationship('Appel', back_populates="abonne", lazy='joined')
     centre = relationship('Centre', back_populates="abonnes")
@@ -61,7 +62,6 @@ class ContactUrgence(Base):
     telephone = Column(BigInteger)
     telephone2 = Column(BigInteger, default=None)
     cleDispo = Column(Boolean)
-    #lien = Column(String(50))
     abonnes = relationship('Abonne', back_populates="contactUrgences",secondary='ass_abonne_contactUrgence')
     associations = relationship('Ass_abonne_contactUrgence', back_populates='contactUrgence', overlaps="contactUrgences,abonnes")
 
@@ -86,4 +86,4 @@ class Centre(Base):
     abonnes = relationship('Abonne', back_populates='centre', lazy='joined')
 
 #Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
+#Base.metadata.create_all(engine)
