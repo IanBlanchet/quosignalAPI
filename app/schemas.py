@@ -60,7 +60,7 @@ class alerteEnum(str, Enum):
 class BaseAppel(BaseModel):    
     date : date
     resultat : appelEnum
-    alerte : alerteEnum
+    alerte : Union[alerteEnum, None] = None
     commentaire: str
     usager_id : int
     abonne_id : int
