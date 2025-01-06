@@ -86,4 +86,4 @@ class Centre(Base):
     abonnes = relationship('Abonne', back_populates='centre', lazy='joined')
 
 #Base.metadata.drop_all(engine)
-#Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
