@@ -50,11 +50,17 @@ class appelEnum(str, Enum):
     absence = 'absence motivée'
     sauvetage = 'sauvetage'
 
+class alerteEnum(str, Enum):
+    niveau1 = 'message'
+    niveau2 = 'répondant'
+    niveau3 = 'hôpital'
+    niveau4 = 'police'
+
 
 class BaseAppel(BaseModel):    
     date : date
     resultat : appelEnum
-    alerte : str
+    alerte : alerteEnum
     commentaire: str
     usager_id : int
     abonne_id : int
