@@ -5,7 +5,7 @@ from app.routes import route
 
 app = FastAPI()
 
-origins = [ "http://localhost:8081" ] 
+origins = [ "*" ] 
 
 app.add_middleware( CORSMiddleware, 
                    allow_origins=origins, 
