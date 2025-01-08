@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr
 from enum import Enum
 
 class BaseAbonne(BaseModel):
+    id : Union[int, None] = None
     nom : str
     prenom : str
     date_naissance : date
@@ -31,6 +32,7 @@ class niveauEnum(str, Enum):
 
 
 class BaseUsager(BaseModel):    
+    id : Union[int, None] = None
     nom : str
     prenom : str
     email : EmailStr
@@ -87,7 +89,7 @@ class Abonne(BaseAbonne):
     date_insc : date
     actif : bool
     appels: List[Appel] = []
-    
+
 
 class Usager(BaseUsager):
     id : int
