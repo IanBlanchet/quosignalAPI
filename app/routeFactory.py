@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
 from app import models, schemas
-from typing import List
+from typing import List, Annotated
 
 from fastapi import Depends, HTTPException, APIRouter
+from app.auth import oauth2_scheme
 
 
 from app.database import session_scope
@@ -32,7 +33,7 @@ class RouteFactory:
     def create_route_get_all(self) -> APIRouter: 
         "retourne un router pour obtenir toutes les données"
         @self.router.get(f"/{self.routename}/", response_model=List[self.baseSchema], tags=[self.routename]) 
-        def read_all(db: Session = Depends(session_scope)):
+        def read_all(db: Session = Depends(session_scope) ):
             items = db.query(self.model).all() 
             return items
         return self.router
