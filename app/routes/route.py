@@ -21,6 +21,7 @@ allUsagerRouter = usagerRoute.create_route_get_all()
 usagerRouter = usagerRoute.create_route_get_item()
 newUsagerRouter = usagerRoute.create_route_post_new(['email'])
 
+
 appelRoute = RouteFactory('appel', schemas.Appel, schemas.BaseAppel, models.Appel)
 allAppelRouter = appelRoute.create_route_get_all()
 newAppelRouter = appelRoute.create_route_post_new([['date', 'abonne_id']])
@@ -32,3 +33,4 @@ newContactUrgence = contactUrgenceRoute.create_route_post_new([])
 assAbonneContactUrgenceRoute = RouteFactory('ass_abonne_contacturgence', schemas.Ass_abonne_contactUrgence, schemas.BaseAss_abonne_contactUrgence, models.Ass_abonne_contactUrgence)
 assAbonneContactUrgenceRouter = assAbonneContactUrgenceRoute.create_route_get_all()
 assAbonneContactUrgenceRouter = assAbonneContactUrgenceRoute.create_route_post_new([['abonne_id', 'contactUrgence_id']])
+

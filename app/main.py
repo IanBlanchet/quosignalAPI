@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes import route
-
+from app import auth
 
 app = FastAPI()
 
@@ -18,7 +18,7 @@ app.add_middleware( CORSMiddleware,
 
 
 
-
+app.include_router(auth.router)
 app.include_router(route.allAbonneRouter)
 app.include_router(route.newAbonneRouter)
 app.include_router(route.abonneRouter)
