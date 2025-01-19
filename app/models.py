@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from app.database import Base, engine
 from datetime import date
 from sqlalchemy.dialects.postgresql import JSONB
+from passlib.context import CryptContext
 
 class Abonne(Base):
     __tablename__='abonne'
@@ -27,6 +28,10 @@ class Abonne(Base):
     contactUrgences = relationship('ContactUrgence', back_populates="abonnes", secondary='ass_abonne_contactUrgence')
     associations = relationship('Ass_abonne_contactUrgence', back_populates='abonne', overlaps="contactUrgences,abonnes")
 
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 class Usager(Base):
     __tablename__='usager'
     id = Column(Integer, primary_key= True)	
@@ -38,6 +43,14 @@ class Usager(Base):
     centre_id = Column(Integer, ForeignKey('centre.id'))
     appels = relationship('Appel', back_populates="usager", lazy='joined')
     centre = relationship('Centre', back_populates="usagers")
+
+    def verify_password(self, plain_password):
+        return pwd_context.verify(plain_password, self.password_hash)
+    
+    def hash_password(self, password):
+        self.password_hash = pwd_context.hash(password)
+        return self.password_hash
+
 
 
 class Appel(Base):
