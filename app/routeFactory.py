@@ -4,13 +4,13 @@ from app import models, schemas
 from typing import List, Annotated
 
 from fastapi import Depends, HTTPException, APIRouter
-from app.auth import oauth2_scheme
+from app.auth import oauth2_scheme, get_current_user
 
 
 from app.database import session_scope
 
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 class RouteFactory:
     """
@@ -47,7 +47,7 @@ class RouteFactory:
         Returns:
             APIRouter: une route pour obtenir un item spécifique basé sur l'url
         """
-        @self.router.get(f"/{self.routename}/"+"{item_id}", response_model=self.schema)
+        @self.router.get(f"/{self.routename}/"+"{item_id}", response_model=self.schema, tags=[self.routename])
         def read_item(item_id: int, db: Session = Depends(session_scope)):
             query = db.query(self.model)#.where(getattr(self.model, 'id') == item_id).first()
             for relation in self.relations: 
@@ -67,7 +67,7 @@ class RouteFactory:
             fieldUniqueValidation (List): les noms du champs qui doivent être unique.  
                                         Si le champs est une liste, on veut valider une combinaison.
         """
-        @self.router.post(f"/{self.routename}/" ) 
+        @self.router.post(f"/{self.routename}/", tags=[self.routename] ) 
         def create_new(item : self.baseSchema, db: Session = Depends(session_scope)):
             item_dict = item.dict()
             for field in fieldUniqueValidation:

@@ -13,33 +13,13 @@ from app.config import Config
 
 def authenticate_usager(username: str, password:str, db: Session = Depends(session_scope)):
     usager = db.query(models.Usager).where(getattr(models.Usager, 'email') == username).first()
-    print(usager.hash_password(password))
-    if not usager:
-        print('pas usager')
+    #print(usager.hash_password(password))
+    if not usager:        
         return False
-    if not usager.verify_password(password):
-        print('mauvais pass')
+    if not usager.verify_password(password):        
         return False
     return usager
 
-'''fake_users_db = {
-    "johndoe": {
-        "nom": "johndoe",
-        "prenom": "John Doe",
-        "email": "johndoe@example.com",
-        "password_hash": "fakehashedsecret",
-        "niveau": "benevole",
-        "centre_id":1
-    },
-    "alice": {
-        "nom": "alice",
-        "prenom": "Alice Wonderson",
-        "email": "alice@example.com",
-        "password_hash": "fakehashedsecret2",
-        "niveau": "benevole",
-        "centre_id":1
-    },
-}'''
 
 class Token(BaseModel):
     access_token:str
@@ -61,8 +41,6 @@ def get_user(username: str, db: Session = Depends(session_scope)):
             "centre_id": usager.centre_id }       
         return schemas.BaseUsager(**user_dict)
 
-'''def fake_hash_password(password: str):
-    return "fakehashed" + password'''
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
     to_encode = data.copy()
@@ -76,11 +54,6 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-'''def fake_decode_token(token):
-    return models.Usager(
-        nom=token + "fakedecoded", email="john@example.com", prenom="John Doe"
-    )'''
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(session_scope)):
