@@ -3,7 +3,7 @@ from sqlalchemy import and_
 from app import models, schemas
 from typing import List, Annotated
 
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import Depends, HTTPException, APIRouter, Security
 from app.auth import oauth2_scheme, get_current_user
 
 
@@ -59,16 +59,17 @@ class RouteFactory:
             return item
         return self.router
 
-    def create_route_post_new(self, fieldUniqueValidation : List[str]) -> APIRouter:
+    def create_route_post_new(self, fieldUniqueValidation : List[str], niveau : List[str] = []) -> APIRouter:
         """
         permet de creer une route pour creer une nouvelle entrée
 
         Args: 
             fieldUniqueValidation (List): les noms du champs qui doivent être unique.  
                                         Si le champs est une liste, on veut valider une combinaison.
+            niveau (str) : permet de controler l'autorisation requise pour utiliser cette route
         """
         @self.router.post(f"/{self.routename}/", tags=[self.routename] ) 
-        def create_new(item : self.baseSchema, db: Session = Depends(session_scope)):
+        def create_new(item : self.baseSchema, db: Session = Depends(session_scope), current_user: Annotated[self.schema, Security(get_current_user, scopes=niveau)] = None):
             item_dict = item.dict()
             for field in fieldUniqueValidation:
                 if type(field) == list:
