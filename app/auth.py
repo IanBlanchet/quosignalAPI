@@ -82,10 +82,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     return encoded_jwt
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(
-                                        tokenUrl="token",
-                                        scopes={"benevole": "Read items and add call",}
-                                        )
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 async def get_current_user(security_scopes: SecurityScopes,  token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(session_scope)):
@@ -164,13 +161,13 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
             headers={"WWW-Authenticate": "Bearer"},
             )
     access_token_expires = timedelta(minutes=720)
-    user_scopes = []
-    if user.niveau == 'modificateur':
+    user_scopes = {'attente':[], 'benevole':['benevole'], 'modificateur':['benevole', 'modificateur'], 'admin' : ['benevole', 'modificateur', 'admin']}
+    '''if user.niveau == 'modificateur':
         user_scopes.append('modificateur') 
     if user.niveau == 'admin':
-        user_scopes += ['modificateur', 'admin']
+        user_scopes += ['modificateur', 'admin']'''
     access_token = create_access_token(
-        data={"sub": user.email,  "scopes": user_scopes}, 
+        data={"sub": user.email,  "scopes": user_scopes[user.niveau]}, 
         expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")

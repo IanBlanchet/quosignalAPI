@@ -30,17 +30,26 @@ class RouteFactory:
         self.relations = relations
         self.router = router
 
-    def create_route_get_all(self) -> APIRouter: 
+    def create_route_get_all(self, niveau) -> APIRouter: 
+        """retourne un router pour obtenir toutes les données
+
+        Args: 
+            niveau (str) : permet de controler l'autorisation requise pour utiliser cette route
+
+        Returns:
+            APIRouter: une route pour obtenir tous les items
+        """
         "retourne un router pour obtenir toutes les données"
-        @self.router.get(f"/{self.routename}/", response_model=List[self.baseSchema], tags=[self.routename]) 
-        def read_all(db: Session = Depends(session_scope) ):
+        @self.router.get(f"/{self.routename}/", response_model=List[self.baseSchema], tags=[self.routename], ) 
+        def read_all(db: Session = Depends(session_scope), current_user: Annotated[self.schema, Security(get_current_user, scopes=niveau)] = None ):
             items = db.query(self.model).all() 
             return items
         return self.router
     
-    def create_route_get_item(self) -> APIRouter:
+    def create_route_get_item(self, niveau) -> APIRouter:
         """une route pour récupérer un item
-
+        Args: 
+            niveau (str) : permet de controler l'autorisation requise pour utiliser cette route
         Raises:
             HTTPException: lorsque l'item n'existe pas
 
@@ -48,7 +57,7 @@ class RouteFactory:
             APIRouter: une route pour obtenir un item spécifique basé sur l'url
         """
         @self.router.get(f"/{self.routename}/"+"{item_id}", response_model=self.schema, tags=[self.routename])
-        def read_item(item_id: int, db: Session = Depends(session_scope)):
+        def read_item(item_id: int, db: Session = Depends(session_scope), current_user: Annotated[self.schema, Security(get_current_user, scopes=niveau)] = None):
             query = db.query(self.model)#.where(getattr(self.model, 'id') == item_id).first()
             for relation in self.relations: 
                 query = query.options(joinedload(getattr(self.model, relation)))

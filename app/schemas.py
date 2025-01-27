@@ -29,7 +29,7 @@ class niveauEnum(str, Enum):
     admin = 'admin'
     modificateur = 'modificateur'
     benevole = 'benevole'
-
+   
 
 class BaseUsager(BaseModel):    
     id : Union[int, None] = None
