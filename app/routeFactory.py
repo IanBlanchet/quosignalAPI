@@ -82,21 +82,30 @@ class RouteFactory:
         def create_new(item : self.baseSchema, db: Session = Depends(session_scope), current_user: Annotated[self.schema, Security(get_current_user, scopes=niveau)] = None):
             item_dict = item.dict()
             fieldUniqueValidation(item_dict, fieldsToValidate, db, self.model)
-            '''for field in fieldUniqueValidation:
-                if type(field) == list:
-                    existItem = db.query(self.model).where(and_(getattr(self.model, field[0]) == item_dict[field[0]] , getattr(self.model, field[1]) == item_dict[field[1]])).first()
-                    if existItem:
-                        raise HTTPException(status_code=400, detail=f"La combinaison {field[0]} et {field[1]} existe déjà")
-                else:
-                    existItem = db.query(self.model).where(getattr(self.model, field) == item_dict[field]).first()
-                    if existItem:
-                        raise HTTPException(status_code=400, detail=f"{field} existe déjà")'''
-
             new_item = self.model(**item_dict)
             db.add(new_item)
             return new_item
+        
         return self.router
 
+    def create_route_edit_item(self, fieldsToValidate : List[str], niveau : List[str] = []) -> APIRouter:
+        """
+        permet de creer une route pour éditer une entrée
+
+        Args: 
+            fieldToValidate (List): les noms du champs qui doivent être unique.  
+                                        Si le champs est une liste, on veut valider une combinaison.
+            niveau (str) : permet de controler l'autorisation requise pour utiliser cette route
+        """
+        @self.router.put(f"/{self.routename}/"+"{item_id}", tags=[self.routename] ) 
+        def edit_item(item: self.baseSchema, item_id : int, db: Session = Depends(session_scope), current_user: Annotated[self.schema, Security(get_current_user, scopes=niveau)] = None):
+            item_dict = item.dict()
+            fieldUniqueValidation(item_dict, fieldsToValidate, db, self.model, item_id)
+            db.query(self.model).filter(getattr(self.model, 'id') == item_id).update(item_dict)
+            db.commit()
+            return item_dict
+        
+        return self.router
 
 
 

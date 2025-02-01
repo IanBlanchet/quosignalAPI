@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr
 from enum import Enum
 
 class BaseAbonne(BaseModel):
-    id : Union[int, None] = None
+    #id : Union[int, None] = None
     nom : str
     prenom : str
     date_naissance : date
@@ -38,7 +38,7 @@ class NewUsager(BaseModel):
 
 
 class BaseUsager(BaseModel):    
-    id : Union[int, None] = None
+    #id : Union[int, None] = None
     nom : str
     prenom : str
     email : EmailStr
