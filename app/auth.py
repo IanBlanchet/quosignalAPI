@@ -182,6 +182,7 @@ async def create_new_usager(user : schemas.NewUsager, db: Session = Depends(sess
         schemas.Usager: retourne un usager sur le model pydantic
     """
     user_dict = user.model_dump()
+    fieldUniqueValidation(user_dict, ["email"], db, models.Usager)
     password = user_dict.pop('password')
     usager = models.Usager(**user_dict)
     usager.hash_password(password)    
