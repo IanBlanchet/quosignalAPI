@@ -19,11 +19,9 @@ app.add_middleware( CORSMiddleware,
 
 
 app.include_router(auth.router)
+#à l'importation de la première route, le router est auromatiquement loader pour le reste de route
 app.include_router(route.allAbonneRouter)
-app.include_router(route.newAbonneRouter)
-app.include_router(route.abonneRouter)
 app.include_router(route.allCentreRouter)
 app.include_router(route.allUsagerRouter)
-#app.include_router(route.newUsagerRouter)
 app.include_router(route.allAppelRouter)
-app.include_router(route.newAppelRouter)
+
