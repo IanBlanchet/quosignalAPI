@@ -9,6 +9,7 @@ from typing import Annotated, Union
 from app import models, schemas
 from app.database import session_scope
 from app.config import Config
+from app.util import fieldUniqueValidation
 
 
 def authenticate_usager(username: str, password:str, db: Session = Depends(session_scope)) -> models.Usager:
@@ -59,7 +60,7 @@ def get_user(username: str, db: Session = Depends(session_scope)):
             "password_hash": usager.password_hash, 
             "niveau": usager.niveau, 
             "centre_id": usager.centre_id }       
-        return schemas.BaseUsager(**user_dict)
+        return schemas.Usager(**user_dict)
 
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
@@ -134,12 +135,12 @@ async def get_current_user(security_scopes: SecurityScopes,  token: Annotated[st
     return user
 
 
-@router.get("/usager/me")
+@router.get("/usager/me", tags=["usager"])
 async def read_users_me(current_user: Annotated[models.Usager, Depends(get_current_user)]):
     return current_user
 
 
-@router.post("/token")
+@router.post("/token", tags=["auth"])
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(session_scope)) -> Token:
     """la route pour se connecter sur l'api
 
@@ -162,13 +163,46 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
             )
     access_token_expires = timedelta(minutes=720)
     user_scopes = {'attente':[], 'benevole':['benevole'], 'modificateur':['benevole', 'modificateur'], 'admin' : ['benevole', 'modificateur', 'admin']}
-    '''if user.niveau == 'modificateur':
-        user_scopes.append('modificateur') 
-    if user.niveau == 'admin':
-        user_scopes += ['modificateur', 'admin']'''
     access_token = create_access_token(
         data={"sub": user.email,  "scopes": user_scopes[user.niveau]}, 
         expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
     
+
+@router.post("/usager/", tags=["usager"])
+async def create_new_usager(user : schemas.NewUsager, db: Session = Depends(session_scope)) -> schemas.Usager:
+    """permet de créer un nouvel usager
+
+    Args:
+        item (schemas.BaseUsager): les données de l'usager à créer
+        db (Session, optional): la connexion à la bd. Defaults to Depends(session_scope).
+        
+    Returns:
+        schemas.Usager: retourne un usager sur le model pydantic
+    """
+    user_dict = user.model_dump()
+    password = user_dict.pop('password')
+    usager = models.Usager(**user_dict)
+    usager.hash_password(password)    
+    db.add(usager)
+    db.commit()
+    
+    return usager
+
+@router.post("/usager/{usager_id}/approval", tags=["usager"])
+async def approve_new_usager(usager_id : int, niveau: str, db: Session = Depends(session_scope), current_user: Annotated[schemas.Usager, Security(get_current_user, scopes=['admin'])] = None) -> schemas.Usager:
+    """permet d'approuver un usager par un admin
+
+    Args:
+        usager_id (int): l'id de l'usager à approuver
+        niveau : le niveau d'autorisation de l'usager
+        db (Session, optional): la connexion à la bd. Defaults to Depends(session_scope).
+
+    Returns:
+        schemas.Usager: retourne un usager sur le model pydantic
+    """    
+    usager = db.query(models.Usager).where(getattr(models.Usager, 'id') == usager_id).first()
+    usager.niveau = schemas.niveauEnum[niveau]
+    db.commit()
+    return usager

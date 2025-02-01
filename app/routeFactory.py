@@ -6,8 +6,9 @@ from typing import List, Annotated
 from fastapi import Depends, HTTPException, APIRouter, Security
 from app.auth import oauth2_scheme, get_current_user
 
-
 from app.database import session_scope
+
+from app.util import fieldUniqueValidation
 
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
@@ -68,19 +69,20 @@ class RouteFactory:
             return item
         return self.router
 
-    def create_route_post_new(self, fieldUniqueValidation : List[str], niveau : List[str] = []) -> APIRouter:
+    def create_route_post_new(self, fieldsToValidate : List[str], niveau : List[str] = []) -> APIRouter:
         """
         permet de creer une route pour creer une nouvelle entrée
 
         Args: 
-            fieldUniqueValidation (List): les noms du champs qui doivent être unique.  
+            fieldToValidate (List): les noms du champs qui doivent être unique.  
                                         Si le champs est une liste, on veut valider une combinaison.
             niveau (str) : permet de controler l'autorisation requise pour utiliser cette route
         """
         @self.router.post(f"/{self.routename}/", tags=[self.routename] ) 
         def create_new(item : self.baseSchema, db: Session = Depends(session_scope), current_user: Annotated[self.schema, Security(get_current_user, scopes=niveau)] = None):
             item_dict = item.dict()
-            for field in fieldUniqueValidation:
+            fieldUniqueValidation(item_dict, fieldsToValidate, db, self.model)
+            '''for field in fieldUniqueValidation:
                 if type(field) == list:
                     existItem = db.query(self.model).where(and_(getattr(self.model, field[0]) == item_dict[field[0]] , getattr(self.model, field[1]) == item_dict[field[1]])).first()
                     if existItem:
@@ -88,7 +90,7 @@ class RouteFactory:
                 else:
                     existItem = db.query(self.model).where(getattr(self.model, field) == item_dict[field]).first()
                     if existItem:
-                        raise HTTPException(status_code=400, detail=f"{field} existe déjà")
+                        raise HTTPException(status_code=400, detail=f"{field} existe déjà")'''
 
             new_item = self.model(**item_dict)
             db.add(new_item)

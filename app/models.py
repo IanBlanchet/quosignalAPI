@@ -40,7 +40,7 @@ class Usager(Base):
     email = Column(String(60), unique = True)
     password_hash = Column(String(128))
     niveau = Column(String(20), default='attente')
-    centre_id = Column(Integer, ForeignKey('centre.id'))
+    centre_id = Column(Integer, ForeignKey('centre.id'), default=1)
     appels = relationship('Appel', back_populates="usager", lazy='joined')
     centre = relationship('Centre', back_populates="usagers")
 

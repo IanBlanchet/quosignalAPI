@@ -19,7 +19,7 @@ allCentreRouter = centreRoute.create_route_get_all(['benevole'])
 usagerRoute = RouteFactory('usager', schemas.Usager, schemas.BaseUsager, models.Usager)
 allUsagerRouter = usagerRoute.create_route_get_all(['modificateur'])
 usagerRouter = usagerRoute.create_route_get_item(['modificateur'])
-newUsagerRouter = usagerRoute.create_route_post_new(['email'], ["admin"])
+#newUsagerRouter = usagerRoute.create_route_post_new(['email'], ["admin"])
 
 
 appelRoute = RouteFactory('appel', schemas.Appel, schemas.BaseAppel, models.Appel)
