@@ -12,7 +12,7 @@ Session = sessionmaker(bind=engine)
 
 def session_scope():
     session = Session()
-    try:
+    try:        
         yield session
         session.commit()
     except Exception:

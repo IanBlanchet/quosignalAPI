@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr
 from enum import Enum
 
 class BaseAbonne(BaseModel):
-    id : Union[int, None] = None
+    #id : Union[int, None] = None
     nom : str
     prenom : str
     date_naissance : date
@@ -29,16 +29,20 @@ class niveauEnum(str, Enum):
     admin = 'admin'
     modificateur = 'modificateur'
     benevole = 'benevole'
-
-
-class BaseUsager(BaseModel):    
-    id : Union[int, None] = None
+   
+class NewUsager(BaseModel):
     nom : str
     prenom : str
     email : EmailStr
-    password_hash : Optional[str]
-    niveau : niveauEnum
-    centre_id : int
+    password : str
+
+
+class BaseUsager(BaseModel):    
+    #id : Union[int, None] = None
+    nom : str
+    prenom : str
+    email : EmailStr
+    centre_id : int = 1
 
     model_config = {
         "from_attributes":True
@@ -46,6 +50,8 @@ class BaseUsager(BaseModel):
 
 class Usager(BaseUsager):
     id : int
+    password_hash : Optional[str]
+    niveau : niveauEnum = niveauEnum.attente
 
 class appelEnum(str, Enum):
     complet = 'complété'
