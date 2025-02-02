@@ -11,7 +11,7 @@ from app.database import session_scope
 from app.util import fieldUniqueValidation
 
 
-router = APIRouter(dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/api/v1")
 
 class RouteFactory:
     """

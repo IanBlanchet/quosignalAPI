@@ -82,8 +82,8 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     encoded_jwt = jwt.encode(to_encode, Config.SECRET_KEY, algorithm='HS256')
     return encoded_jwt
 
-router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+router = APIRouter(prefix="/api/v1")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 
 
 async def get_current_user(security_scopes: SecurityScopes,  token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(session_scope)):
