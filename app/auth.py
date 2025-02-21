@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session, joinedload
-from fastapi import Depends, HTTPException, APIRouter, Security, status
+from fastapi import Depends, HTTPException, APIRouter, Security, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, SecurityScopes
 from pydantic import BaseModel, ValidationError
 from typing import Annotated, Union
@@ -10,7 +10,7 @@ from app import models, schemas
 from app.database import session_scope
 from app.config import Config
 from app.util import fieldUniqueValidation
-from app.email import EmailRequest, send_reset_password_mail
+from app.email import EmailRequest
 
 
 def authenticate_usager(username: str, password:str, db: Session = Depends(session_scope)) -> models.Usager:
@@ -221,23 +221,22 @@ async def reset_password_request(email: str, db: Session = Depends(session_scope
         db (Session, optional): la connexion à la bd. Defaults to Depends(session_scope).
 
     Returns:
-        dict: retourne un message de succès
+        dict: retourne un token utilisé pour réinitialiser le mot de passe
     """
     usager = db.query(models.Usager).where(getattr(models.Usager, 'email') == email).first()
     if not usager:
         raise HTTPException(status_code=400, detail="Cet usager n'existe pas")
-    token = usager.get_reset_password_token()
-    send_reset_password_mail(EmailRequest(to_address=email, subject="Réinitialisation du mot de passe", body=f"Voici votre lien de réinitialisation: {Config.APP_URL}/reset_password?token={token}"), token)
+    token = usager.get_reset_password_token()    
 
-    return {"message": "Un courriel a été envoyé à l'adresse fournie"}
+    return {"token": token}
 
-@router.get("/reset_password", tags=["auth"])
-async def reset_password(new_password: str, token: str = None, db: Session = Depends(session_scope)):
+@router.post("/reset_password", tags=["auth"])
+async def reset_password(new_password: str = Form(...), token: str = None, db: Session = Depends(session_scope)):
     """permet de réinitialiser le mot de passe d'un usager
 
     Args:
         new_password (str): le noueau mot de passe
-        token (str) : le token de réinitialisation
+        token (str) : le token de réinitialisation obtenu par /reset_password_request
         db (Session, optional): la connexion à la bd. Defaults to Depends(session_scope).
 
     Returns:
