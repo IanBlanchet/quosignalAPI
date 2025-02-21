@@ -235,7 +235,7 @@ async def reset_password(new_password: str = Form(...), token: str = None, db: S
     """permet de réinitialiser le mot de passe d'un usager
 
     Args:
-        new_password (str): le noueau mot de passe
+        new_password (str): le nouveau mot de passe
         token (str) : le token de réinitialisation obtenu par /reset_password_request
         db (Session, optional): la connexion à la bd. Defaults to Depends(session_scope).
 
