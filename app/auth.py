@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session, joinedload
-from fastapi import Depends, HTTPException, APIRouter, Security, status
+from fastapi import Depends, HTTPException, APIRouter, Security, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, SecurityScopes
 from pydantic import BaseModel, ValidationError
 from typing import Annotated, Union
@@ -10,6 +10,7 @@ from app import models, schemas
 from app.database import session_scope
 from app.config import Config
 from app.util import fieldUniqueValidation
+from app.email import EmailRequest
 
 
 def authenticate_usager(username: str, password:str, db: Session = Depends(session_scope)) -> models.Usager:
@@ -207,3 +208,46 @@ async def approve_new_usager(usager_id : int, niveau: str, db: Session = Depends
     usager.niveau = schemas.niveauEnum[niveau]
     db.commit()
     return usager
+
+
+
+
+@router.post("/reset_password_request", tags=["auth"])
+async def reset_password_request(email: str, db: Session = Depends(session_scope)):
+    """permet de demander la réinitialisation du mot de passe
+
+    Args:
+        email (str): le courriel de l'usager
+        db (Session, optional): la connexion à la bd. Defaults to Depends(session_scope).
+
+    Returns:
+        dict: retourne un token utilisé pour réinitialiser le mot de passe
+    """
+    usager = db.query(models.Usager).where(getattr(models.Usager, 'email') == email).first()
+    if not usager:
+        raise HTTPException(status_code=400, detail="Cet usager n'existe pas")
+    token = usager.get_reset_password_token()    
+
+    return {"token": token}
+
+@router.post("/reset_password", tags=["auth"])
+async def reset_password(new_password: str = Form(...), token: str = None, db: Session = Depends(session_scope)):
+    """permet de réinitialiser le mot de passe d'un usager
+
+    Args:
+        new_password (str): le nouveau mot de passe
+        token (str) : le token de réinitialisation obtenu par /reset_password_request
+        db (Session, optional): la connexion à la bd. Defaults to Depends(session_scope).
+
+    Returns:
+        dict: retourne un message de succès
+    """
+    if not token:
+        raise HTTPException(status_code=400, detail="aucun token n'est fourni")
+    usager_id = models.Usager.verify_reset_password_token(token)
+    if not usager_id:
+        raise HTTPException(status_code=400, detail="Token invalide ou expiré")
+    usager = db.query(models.Usager).where(getattr(models.Usager, 'id') == usager_id).first()
+    usager.hash_password(new_password)
+    db.commit()
+    return {"message": "Le mot de passe a été réinitialisé avec succès"}

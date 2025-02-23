@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes import route
 from app import auth
+from app import email
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ app.add_middleware( CORSMiddleware,
 
 
 app.include_router(auth.router)
+app.include_router(email.router)
 #à l'importation de la première route, le router est auromatiquement loader pour le reste de route
 app.include_router(route.allAbonneRouter)
 app.include_router(route.allCentreRouter)
